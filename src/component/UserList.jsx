@@ -4,51 +4,39 @@ export default function UserList() {
   const [user, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch(
+          "https://jsonplaceholder.typicode.com/users"
+        );
+
         if (!response.ok) {
-          throw new Error("NetWork response was not ok");
+          throw new Error("Network response was not ok");
         }
-        return response.json();
-      })
-      .then((data) => {
+
+        const data = await response.json();
         setUsers(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
-  }, []);
-  if (loading) {
-    return <p>Loading user....</p>;
-  }
-  if (error) {
-    return <p style={{ color: "red" }}> Error</p>;
-  }
+      }
+    }
+
+    fetchUsers();
+  }, []); // Don't forget the dependency array!
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
-    <div style={{ maxWidth: 600, margin: "auto" }}>
-      <h2>Fetched User:</h2>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {user.map((user) => (
-          <li
-            key={user.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 8,
-              padding: 12,
-              marginBottom: 10,
-              backgroundColor: "#fafafa",
-              textAlign: "left",
-            }}
-          >
-            <strong>{user.name}</strong>
-            <br />
-            <span>{user.email}</span>
-            <br />
-            <small>{user.address.city}</small>
-          </li>
+    <div>
+      <h1>User List</h1>
+      <ul>
+        {user.map((u) => (
+          <li key={u.id}>{u.name}</li>
         ))}
       </ul>
     </div>
