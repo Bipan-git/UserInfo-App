@@ -1,8 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Spinner from "./Spinner";
 
-export default function UserList({ users }) {
+export default function UserList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await axios.get(
+          "https://jsonplaceholder.typicode.com/users"
+        );
+        setUsers(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
+  if (loading) {
+    return <Spinner />;
+  }
+  if (error) {
+    return <p style={{ color: "red" }}>❌ Error:{error}</p>;
+  }
   return (
-    <div style={{ marginBottom: 30 }}>
+    <div style={{ maxWidth: 600, margin: "auto" }}>
       <h2>👤 User List: </h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {users.map((user) => (
